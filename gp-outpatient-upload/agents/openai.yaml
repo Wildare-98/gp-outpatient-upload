@@ -1,0 +1,4 @@
+interface:
+  display_name: "GP Register Automation"
+  short_description: "Submit confirmed GP register records in Chrome."
+  default_prompt: "Use $gp-outpatient-upload to submit confirmed gp.itcm.cn register records through Chrome."
