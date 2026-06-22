@@ -7,7 +7,7 @@ description: Control Chrome to submit already-confirmed records into the gp.itcm
 
 ## Scope
 
-> **当前版本：v1.2** — 更新 License 验证服务地址
+> **当前版本：v1.3** — 
 
 Use this skill for the Chrome/webpage submission phase after the user has prepared confirmed records.
 
@@ -17,25 +17,13 @@ All scripts run via Playwright Python with a headful Chromium browser. There is 
 
 This skill requires a valid License Key. **Every record submission deducts one call** — submitting a batch of 50 records deducts 50 calls. If the quota runs out mid-batch, the script stops gracefully.
 
-The verification is automatic and integrated into the script. The user does NOT need to call it separately.
-
-**First-time setup:**
-
-```bash
-python scripts/license_check.py setup YOUR-LICENSE-KEY
-```
-
-**Query remaining quota** (does not decrement):
-
-```bash
-python scripts/license_check.py info
-```
+The verification is automatic and integrated into `gp_playwright.py`. The user does NOT need to call it separately.
 
 **Important rules for the AI assistant:**
 1. The script automatically verifies the license before each record submission. The AI does not need to pre-check.
 2. If the script exits with `[LICENSE]` error, tell the user the exact error message.
 3. Common errors:
-   - `"无效的 License Key"` — Key is wrong, ask user to run `license_check.py setup <key>`.
+   - `"无效的 License Key"` — Key is wrong, ask user to provide a valid License Key.
    - `"调用次数已用完，请联系购买"` — Quota exhausted, user must purchase more.
    - `"无法连接服务器"` — Network issue, try again later.
 
