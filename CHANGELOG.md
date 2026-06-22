@@ -4,6 +4,22 @@ All notable changes to gp-outpatient-upload.
 
 ---
 
+## [v1.2] — 2026-06-21
+
+### Changed
+- **免登录自动检测**：脚本启动后自动检测登录页面并轮询等待用户登录，无需信号文件（`gp_continue.txt` / `gp_done.txt`）。Chrome 保持后台运行，下次提交免登录
+- **Python 3.13 适配**：脚本升级为 PyArmor 加密方案，必须使用 Python 3.13 运行时，其他版本无法解密执行
+- **新 License 服务地址**：License 验证服务迁移至新地址
+
+### Removed
+- 移除 Node REPL 依赖，所有浏览器自动化统一使用 Playwright Python
+- 移除信号文件驱动的交互式登录（`gp_continue.txt` / `gp_done.txt`）
+
+### Fixed
+- 浏览器登录卡顿问题：脚本自动轮询检测登录状态，用户无需手动发送继续信号
+
+---
+
 ## [v1.1] — 2026-06-21
 
 ### Added
@@ -36,7 +52,7 @@ All notable changes to gp-outpatient-upload.
 - Playwright Python 浏览器自动化（替代 Node REPL）
 - 信号文件驱动的交互式登录（`gp_continue.txt` / `gp_done.txt`）
 - PyArmor 客户端代码加密
-- FastAPI 远程 License 服务（腾讯云 `111.229.30.168:8080`）
+- FastAPI 远程 License 服务（腾讯云）
 - SQLite 数据库（license / usage_logs / admin_config）
 - Web 管理后台（`admin.html`）
 - 按条扣费模式（dry-run 同样扣费）

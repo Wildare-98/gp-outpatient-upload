@@ -1,6 +1,7 @@
 <p align="center">
   <h1 align="center">GP Outpatient Upload</h1>
   <p align="center">AI-powered browser automation for submitting medical training records to <code>gp.itcm.cn</code></p>
+  <p align="center"><strong>v1.2</strong> &mdash; 免登录自动检测 + Python 3.13 + 新 License 服务</p>
 </p>
 
 ---
@@ -13,26 +14,26 @@ It handles **data preparation** (image classification, OCR extraction, auto-comp
 
 | Module | Description | Image Upload |
 |--------|-------------|:---:|
-| 门诊病例 (Outpatient Case) | General outpatient visit records | ✓ |
-| 手写大病历 (Handwritten Grand Case) | Full handwritten case records | ✓ |
-| 门诊病种记录 (Outpatient Disease Record) | Disease-specific outpatient tracking | ✗ |
-| 住院病种记录 (Inpatient Disease Record) | Inpatient disease tracking | ✗ |
-| 临床技术记录 (Clinical Technical Record) | Clinical procedure records (TCM Four Examinations, etc.) | ✗ |
+| 门诊病例 (Outpatient Case) | General outpatient visit records | &check; |
+| 手写大病历 (Handwritten Grand Case) | Full handwritten case records | &check; |
+| 门诊病种记录 (Outpatient Disease Record) | Disease-specific outpatient tracking | &cross; |
+| 住院病种记录 (Inpatient Disease Record) | Inpatient disease tracking | &cross; |
+| 临床技术记录 (Clinical Technical Record) | Clinical procedure records (TCM Four Examinations, etc.) | &cross; |
 
 ---
 
 ## How It Works
 
-### Phase 1 — Data Preparation
+### Phase 1 &mdash; Data Preparation
 1. **Classify** uploaded images into the 5 record categories
 2. **Extract** patient name, visit date, and medical record number from images
 3. **Auto-complete** TCM-to-Western diagnosis mappings and clinical notes (~50 chars)
-4. **Verify** with user — fuzzy or missing data is flagged, never fabricated
+4. **Verify** with user &mdash; fuzzy or missing data is flagged, never fabricated
 5. **Output** registration tables (`.txt`) and structured JSON files ready for submission
 
-### Phase 2 — Browser Automation
+### Phase 2 &mdash; Browser Automation
 1. Launch headful Chromium via Playwright
-2. Prompt user to log in to `gp.itcm.cn` via a signal-file pattern
+2. Auto-detect login page &mdash; script polls until user logs in, no signal files needed
 3. Fill and submit forms record-by-record with automatic license verification
 4. Keep browser open for manual review after submission
 
@@ -43,7 +44,7 @@ It handles **data preparation** (image classification, OCR extraction, auto-comp
 ### Prerequisites
 
 - [WorkBuddy](https://www.workbuddy.cn) desktop client
-- Python 3.8+
+- **Python 3.13** (required &mdash; scripts are encrypted with PyArmor, other versions cannot decrypt)
 - Playwright and Chromium
 
 ### Quick Start
@@ -68,7 +69,7 @@ Once the skill is loaded, just **send your case images and describe what you wan
 帮我提交这些门诊病例图片到 gp.itcm.cn，科室是心血管内科。每份病例有 3 张图片。
 ```
 
-The AI will guide you through classification, extraction, auto-completion, and submission — no commands to memorize.
+The AI will guide you through classification, extraction, auto-completion, and submission &mdash; no commands to memorize.
 
 For detailed instructions, see the included `使用教程.md` or `使用教程.docx`.
 
@@ -78,25 +79,22 @@ For detailed instructions, see the included `使用教程.md` or `使用教程.d
 
 ```
 gp-outpatient-upload/
-├── SKILL.md              # Skill definition and workflow rules
-├── 使用教程.md/docx       # User tutorial (Chinese)
+├── SKILL.md                          # Skill definition and workflow rules
+├── 使用教程.md/docx                   # User tutorial (Chinese)
+├── agents/
+│   └── openai.yaml                   # Agent configuration
 ├── scripts/
-│   ├── gp_outpatient_upload.mjs      # Outpatient case image upload
-│   ├── gp_no_photo_records.mjs       # Disease & clinical records (no photo)
+│   ├── gp_playwright.py              # Headful browser automation (encrypted)
 │   ├── license_check.py              # License client (encrypted)
-│   └── playwright/
-│       └── gp_playwright.py          # Headful browser automation (encrypted)
-├── license-server/       # FastAPI license management service
-├── test_data/            # Test fixtures
-├── test_encrypted.py     # Integration tests
+│   └── pyarmor_runtime_000000/       # PyArmor runtime (Python 3.13 required)
 └── README.md
 ```
 
 ---
 
-## ⚠️ Disclaimer
+## &cross; Disclaimer
 
-This program runs **entirely on your local machine**. It does **not** collect, store, or transmit any personal information. All case data is sent directly from your browser to `gp.itcm.cn` — no third-party servers are involved.
+This program runs **entirely on your local machine**. It does **not** collect, store, or transmit any personal information. All case data is sent directly from your browser to `gp.itcm.cn` &mdash; no third-party servers are involved.
 
 ---
 
