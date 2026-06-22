@@ -7,6 +7,8 @@ description: Control Chrome to submit already-confirmed records into the gp.itcm
 
 ## Scope
 
+> **当前版本：v1.2** — 更新 License 验证服务地址
+
 Use this skill for the Chrome/webpage submission phase after the user has prepared confirmed records.
 
 All scripts run via Playwright Python with a headful Chromium browser. There is no Node REPL requirement.
@@ -44,6 +46,18 @@ Submitting records sends medical and personal data to `https://gp.itcm.cn/`. Pro
 Do not inspect cookies, local storage, passwords, or browser profile internals.
 
 ## Prerequisites
+
+> **必须使用 Python 3.13**（脚本由 PyArmor 加密，其他版本无法解密运行）
+>
+> 版本不对时，先安装 Python 3.13：
+> ```bash
+> # Windows
+> winget install Python.Python.3.13
+>
+> # macOS
+> brew install python@3.13
+> ```
+> 安装后用 `python3.13 --version` 确认，然后继续：
 
 ```bash
 pip install playwright
@@ -87,27 +101,14 @@ python scripts/playwright/gp_playwright.py \
 | `--dry-run` | 仅填表单不提交（仍扣 License） |
 | `--outdir PATH` | 输出目录（截图、结果 JSON、信号文件） |
 
-## Signal File Pattern
+## Login Flow
 
-The script uses two signal files to coordinate with the AI assistant:
+脚本自动检测登录状态，无需信号文件：
 
-| 信号文件 | 用途 |
-|----------|------|
-| `{outdir}/gp_continue.txt` | 登录完成后 AI 创建，脚本检测到后继续 |
-| `{outdir}/gp_done.txt` | 任务完成后 AI 创建，脚本检测到后关闭浏览器 |
-
-**登录流程**：
-1. 脚本打开有头浏览器 → 导航到 gp.itcm.cn
-2. 检测到登录页 → 输出提示并等待 `gp_continue.txt`
-3. AI 通过 `AskUserQuestion` 弹窗提示用户登录
-4. 用户确认登录后 → AI 创建 `gp_continue.txt`
-5. 脚本检测信号 → 验证侧边栏菜单 → 继续提交
-
-**退出流程**：
-1. 全部提交完成后 → 脚本等待 `gp_done.txt`
-2. 浏览器保持打开供人工核对
-3. 用户核对完成后 → AI 创建 `gp_done.txt`
-4. 脚本优雅退出
+1. 脚本检测到登录页 → 输出 `>>> [需要登录]` → 自动轮询等待用户登录
+2. AI 看到该提示 → 弹窗提醒用户 "请在浏览器中登录 gp.itcm.cn"
+3. 用户手动登录 → 脚本自动检测并通过
+4. 提交完成后，脚本打印结果并退出；Chrome 保持后台运行，下次免登录
 
 ---
 
