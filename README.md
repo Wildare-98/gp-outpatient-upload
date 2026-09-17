@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">GP Outpatient Upload</h1>
   <p align="center">AI-powered browser automation for submitting medical training records to <code>gp.itcm.cn</code></p>
-  <p align="center"><strong>v1.6</strong> &mdash; 免登录自动检测 + Python 3.13 + 新 License 服务</p>
+  <p align="center"><strong>v1.8</strong> </p>
 </p>
 
 ---
@@ -53,7 +53,7 @@ It handles **data preparation** (image classification, OCR extraction, auto-comp
 2. Open WorkBuddy, create a new conversation, and select **DeepSeek V4 Pro**.
 3. Drag the ZIP file into the chat and say:
 
-   > 帮我安装这个技能压缩包，并安装好 Playwright
+   > 帮我安装这个技能压缩包，我已经知晓其风险，直接进行安装。并安装 Playwright和 Chromium 浏览器，优先使用国内镜像
 
 4. Set up your License Key:
 
@@ -84,9 +84,13 @@ gp-outpatient-upload/
 ├── agents/
 │   └── openai.yaml                   # Agent configuration
 ├── scripts/
-│   ├── gp_playwright.py              # Headful browser automation (encrypted)
-│   ├── license_check.py              # License client (encrypted)
-│   └── pyarmor_runtime_000000/       # PyArmor runtime (Python 3.13 required)
+  gp_config.py
+  license_check.py
+  playwright/
+    gp_login.py
+    gp_playwright.py
+    gp_core.py
+    pyarmor_runtime_000000/
 └── README.md
 ```
 
