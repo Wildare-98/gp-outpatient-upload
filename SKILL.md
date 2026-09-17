@@ -5,7 +5,10 @@ description: End-to-end workflow for preparing and submitting GP training regist
 
 # GP 规培登记手册自动化
 
-当前技能包：v1.6（浏览器自动化基于 v1.6）。此技能分两段使用：
+当前技能包：v1.8（浏览器自动化基于 v1.8）。
+可通过[github](https://github.com/Wildare-98/gp-outpatient-upload.git)或[百度网盘](https://pan.baidu.com/s/1YR9uq7qrHBo7Wts749gyyg?pwd=pxu2#/home/%2F/%2F)检查获取最新版本。
+
+此技能分两段使用：
 
 1. **Phase 1：资料准备** - 图片分类、信息提取、登记表和提交 JSON 生成、用户确认。
 2. **Phase 2：网站提交** - 使用 Playwright Python 控制有头 Chrome，将已确认记录提交到 `https://gp.itcm.cn/`。
@@ -16,11 +19,11 @@ description: End-to-end workflow for preparing and submitting GP training regist
 
 - 不编造姓名、日期、病历号等基础身份信息。临床技术记录的操作内容和备注可按用户要求拟写或编造，但在写入登记表或提交前必须先展示给用户确认。
 - 使用用户确认后的数据生成 JSON；不要把未确认的 OCR/视觉识别结果直接提交。
-- 图片上传模块只接受 `jpg`、`jpeg`、`png`、`bmp`。发现 `heic`、`webp`、`tiff`、`gif` 等格式时，让用户自行转换。
+- 门诊病例、手写大病历的图片上传为可选项；提供图片时只接受 `jpg`、`jpeg`、`png`、`bmp`。发现 `heic`、`webp`、`tiff`、`gif` 等格式时，让用户自行转换。
 - 所有本地图片路径写绝对路径，Windows 路径可统一写为 `D:/...` 形式，减少转义问题。
 - 不检查浏览器 cookie、localStorage、密码或浏览器配置内部文件。
 - 网站结构或模板变化、用户未核对过的新模块，先用 1 条记录 `--dry-run` 验证。
-
+- 只要License Key次数扣除，便提交成功，不要重复提交。
 ---
 
 # Phase 1：资料准备
@@ -31,8 +34,8 @@ description: End-to-end workflow for preparing and submitting GP training regist
 
 | 类别 | 是否上传图片 | 登记字段 |
 |---|:---:|---|
-| 门诊病例 | 是 | 序号、姓名、就诊日期、手写病历图片位置 |
-| 手写大病历 | 是 | 序号、姓名、就诊日期、手写病历图片位置 |
+| 门诊病例 | 可选 | 序号、姓名、就诊日期、备注（可选）、手写病历图片位置（可选） |
+| 手写大病历 | 可选 | 序号、姓名、就诊日期、备注（可选）、手写病历图片位置（可选） |
 | 门诊病种记录 | 否 | 姓名、就诊日期、病历号、中医病名、西医病名、初诊/复诊/确诊、备注 |
 | 住院病种记录 | 否 | 姓名、就诊日期、病历号、中医病名、西医病名、主管/参观、备注 |
 | 临床技术记录 | 否 | 姓名、就诊日期、病历号、操作名称、备注 |
@@ -43,7 +46,7 @@ description: End-to-end workflow for preparing and submitting GP training regist
 
 从图片中优先提取能直接看到的信息：
 
-- 门诊病例、手写大病历：`patient_name`、`visit_date`、`image_path` 或 `image_paths`。
+- 门诊病例、手写大病历：`patient_name`、`visit_date` 为必填；`image_path` 或 `image_paths`（可选）、`remarks`（可选）。
 - 门诊病种记录、住院病种记录：`patient_name`、`visit_date`、`case_code` 或 `hospitalization_code`；住院记录另用 `inpatient_role` 表示主管/参观，省略时默认 `主管`。
 - 临床技术记录：`patient_name`、`operation_date` 或 `visit_date`、`case_code`。
 
@@ -129,6 +132,7 @@ JSON 可为单条对象或对象数组。字段优先使用以下规范名称；
   "department": "儿科",
   "patient_name": "张三",
   "visit_date": "2026-02-01",
+  "remarks": "备注内容（可选）",
   "image_path": "D:/absolute/path/IMG_0001.jpg",
   "image_paths": [
     "D:/absolute/path/page1.jpg",
@@ -136,6 +140,8 @@ JSON 可为单条对象或对象数组。字段优先使用以下规范名称；
   ]
 }
 ```
+
+`image_path` / `image_paths` 与 `remarks` 均为可选：不提供图片时跳过图片上传，仅提交文字信息；提供备注且网站表单存在 `#Remarks` 输入框时自动填写。
 
 ### 门诊病种记录
 
@@ -185,7 +191,7 @@ JSON 可为单条对象或对象数组。字段优先使用以下规范名称；
 
 ## 资源布局
 
-根技能包内应包含这些 v1.6 资源：
+根技能包内应包含这些 v1.8 资源：
 
 ```text
 scripts/
@@ -205,7 +211,7 @@ agents/
 
 ## 环境准备
 
-v1.6 要求使用 Python 3.13。Windows 优先使用 `py -3.13`，如果系统只有 `python` 命令且它指向 3.13，也可以用 `python`。
+v1.8 要求使用 Python 3.13。Windows 优先使用 `py -3.13`，如果系统只有 `python` 命令且它指向 3.13，也可以用 `python`。
 
 ```bash
 py -3.13 -m pip install playwright
@@ -246,7 +252,7 @@ py -3.13 scripts/license_check.py clear
 
 ## 登录流程
 
-登录已从提交脚本中拆出。先运行登录检查，不要直接跑提交：
+先运行登录检查，不要直接跑提交：
 
 ```bash
 py -3.13 scripts/playwright/gp_login.py
@@ -271,11 +277,11 @@ py -3.13 scripts/playwright/gp_playwright.py \
   --disease disease_records.json \
   --clinical clinical_records.json
 
-# 门诊病例（图片上传）
+# 门诊病例（图片可选，支持备注）
 py -3.13 scripts/playwright/gp_playwright.py \
   --outpatient outpatient_records.json
 
-# 手写大病历（图片上传）
+# 手写大病历（图片可选，支持备注）
 py -3.13 scripts/playwright/gp_playwright.py \
   --handwritten handwritten_records.json
 
@@ -294,19 +300,19 @@ CLI 参数：
 |---|---|
 | `--disease PATH` | 门诊病种记录 JSON |
 | `--clinical PATH` | 临床技术记录 JSON |
-| `--outpatient PATH` | 门诊病例 JSON，带图片上传 |
-| `--handwritten PATH` | 手写大病历 JSON，带图片上传 |
+| `--outpatient PATH` | 门诊病例 JSON，图片可选，支持备注 |
+| `--handwritten PATH` | 手写大病历 JSON，图片可选，支持备注 |
 | `--inpatient PATH` | 住院病种记录 JSON |
 | `--dry-run` | 仅填表单不最终提交，仍扣 License |
-| `--outdir PATH` | 输出目录，放截图、结果 JSON、信号文件 |
+| `--outdir PATH` | 输出目录，放截图、结果 JSON、信号文件 默认值是 scripts/playwright/|
 | `--wait` | 提交完成后等待 `{outdir}/gp_done.txt` 再退出 |
-| `--no-wait` | 兼容旧参数；v1.6 默认提交完成即退出 |
+| `--no-wait` | 兼容旧参数；v1.8 默认提交完成即退出 |
 
 ## 模块和字段
 
 | 模块 | 路由 | 必填/关键字段 |
 |---|---|---|
-| 门诊病例 | `/OutpatientCaseRecord/Index` | `department`, `patient_name`, `visit_date`, `image_path` 或 `image_paths` |
+| 门诊病例 | `/OutpatientCaseRecord/Index` | 必填 `department`, `patient_name`, `visit_date`；可选 `image_path`/`image_paths`, `remarks` |
 | 门诊病种记录 | `/OutpatientRecord/Index` | `department`, `patient_name`, `visit_date`, `tcm_diagnosis`, `western_diagnosis`, `visit_type`, `remarks` |
 | 临床技术记录 | `/ClinicalRecord/Index` | `department`, `patient_name`, `case_code`, `operation_date`, `operation_item`, `remarks` |
 | 手写大病历 | `/HospitalizationCaseRecord/Index` | 同门诊病例 |
@@ -334,4 +340,6 @@ CLI 参数：
 6. 科室通常选择第二个 `请选择` 字段。
 7. 活体提交建议每批 4-5 条，便于发现重复或校验问题后及时停止。
 8. 遇到校验弹窗、重复提示、缺失字段、表单提交后不关闭等异常，停止并让用户看浏览器。
-9. v1.6 默认提交完成后脚本退出、Chrome 保持打开供人工复核；只有显式使用 `--wait` 时才等待 `gp_done.txt`。
+9. v1.8 默认提交完成后脚本退出、Chrome 保持打开供人工复核；只有显式使用 `--wait` 时才等待 `gp_done.txt`。
+10. 只要License Key次数扣除，便提交成功，不要重复提交。
+
